@@ -5596,4 +5596,4 @@ function Library:Window(p)
 	return Tabs
 end
 
-return library
+return Library
