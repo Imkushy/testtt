@@ -1733,7 +1733,7 @@ do
 			if Multi then
 				selectedValues = {}
 				TextLabelValue_1.Text = "--"
-				pcall(Callback ,selectedValues)
+				Callback(selectedValues)
 			end
 
 			for _, v in ipairs(ScrollingFrame_1:GetChildren()) do
@@ -1741,7 +1741,7 @@ do
 					if selectedItem and v:FindFirstChild("TextLabel") and v.TextLabel.Text == selectedItem then
 						selectedItem = nil
 						TextLabelValue_1.Text = "--"
-						pcall(Callback, TextLabelValue_1.Text)
+						Callback(TextLabelValue_1.Text)
 					end
 					v:Destroy()
 				end
@@ -1818,7 +1818,7 @@ do
 					else
 						TextLabelValue_1.Text = "--"
 					end
-					pcall(Callback, selectedList)
+					Callback(selectedList)
 				else
 					for i,v in pairs(ScrollingFrame_1:GetChildren()) do
 						if v:IsA("Frame") then
@@ -1828,7 +1828,7 @@ do
 					hasselect()
 					Value = text
 					TextLabelValue_1.Text = text
-					pcall(Callback, TextLabelValue_1.Text)
+					Callback(TextLabelValue_1.Text)
 				end
 			end)
 
@@ -1845,31 +1845,29 @@ do
 				return false
 			end
 
-			delay(0,function()
-				if Multi then
-					if isValueInTable(text, Value) then
-						hasselect()
-						selectedValues[text] = true
-						local selectedList = {}
-						for i, v in pairs(selectedValues) do
-							table.insert(selectedList, i)
-						end
-						if #selectedList > 0 then
-							TextLabelValue_1.Text = table.concat(selectedList, ", ")
-						else
-							TextLabelValue_1.Text = "--"
-						end
-						pcall(Callback,selectedList)
+			if Multi then
+				if isValueInTable(text, Value) then
+					hasselect()
+					selectedValues[text] = true
+					local selectedList = {}
+					for i, v in pairs(selectedValues) do
+						table.insert(selectedList, i)
 					end
-				else
-					if text == Value then
-						hasselect()
-						Value = text
-						TextLabelValue_1.Text = text
-						pcall(Callback,TextLabelValue_1.Text)
+					if #selectedList > 0 then
+						TextLabelValue_1.Text = table.concat(selectedList, ", ")
+					else
+						TextLabelValue_1.Text = "--"
 					end
+					Callback(selectedList)
 				end
-			end)
+			else
+				if text == Value then
+					hasselect()
+					Value = text
+					TextLabelValue_1.Text = text
+					Callback(TextLabelValue_1.Text)
+				end
+			end
 		end
 
 		function itemslist:SetValue(value)
@@ -1886,7 +1884,7 @@ do
 						end
 					end
 				end
-				pcall(Callback, selectedValues)
+				Callback(selectedValues)
 			else
 				Value = value
 				TextLabelValue_1.Text = value
@@ -1899,7 +1897,7 @@ do
 						end
 					end
 				end
-				pcall(Callback, value)
+				Callback(value)
 			end
 		end
 
@@ -2479,20 +2477,18 @@ function Library:Window(p)
 						v.Background.AnchorPoint = Vector2.new(1 ,0)
 					end
 				end
-				task.spawn(function()
-					for i, v in next, ScrollingFrame_1:GetChildren() do
-						if v:IsA('Frame') and v:FindFirstChild('Background') then
-							tw({
-								v = v.Background,
-								t = 0.3,
-								s = Enum.EasingStyle.Exponential,
-								d = "InOut",
-								g = {AnchorPoint = Vector2.new(0 ,0)}
-							}):Play()
-							task.wait(.05)
-						end
+				for i, v in next, ScrollingFrame_1:GetChildren() do
+					if v:IsA('Frame') and v:FindFirstChild('Background') then
+						tw({
+							v = v.Background,
+							t = 0.3,
+							s = Enum.EasingStyle.Exponential,
+							d = "InOut",
+							g = {AnchorPoint = Vector2.new(0 ,0)}
+						}):Play()
+						task.wait(.05)
 					end
-				end)
+				end
 				InPage_1.Visible = true
 			end
 			for i, v in pairs(TabList_1:GetChildren()) do
@@ -2697,7 +2693,7 @@ function Library:Window(p)
 							Position = UDim2.new(0, 0,0.5, 0)
 						}}):Play()
 				end
-				pcall(Callback, Value)
+				Callback(Value)
 			end
 
 			Toggle:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
@@ -2822,7 +2818,7 @@ function Library:Window(p)
 				delay(.06, function()
 					tw({v = Button, t = 0.15, s = Enum.EasingStyle.Back, d = "Out", g = {Size = UDim2.new(1, 0,1, 0)}}):Play()
 				end)
-				pcall(Callback)
+				Callback()
 			end)
 		end
 
@@ -2979,7 +2975,7 @@ function Library:Window(p)
 				local va = (value - Min) / (Max - Min)
 				tw({v = Frame_3, t = 0.15, s = Enum.EasingStyle.Exponential, d = "Out", g = {Size = UDim2.new(math.clamp(va, 0.12, 1), 0, 1, 0)}}):Play()
 				TextBox_1.Text = tostring(roundToDecimal(value, Rounding))
-				pcall(Callback ,value)
+				Callback(value)
 			end
 
 			updateSlider(Value or 0)
@@ -3824,7 +3820,7 @@ function Library:Window(p)
 						TextLabel_1.Text = tostring(Key):gsub("Enum.KeyCode.", "")
 						adjustBoxBindSize()
 						inputConnection:Disconnect()
-						pcall(Callback, Key, Value)
+						Callback(Key, Value)
 						task.wait(.1)
 						changeing = false
 					end
@@ -3834,12 +3830,12 @@ function Library:Window(p)
 			U.InputBegan:Connect(function(input, gameProcessed)
 				if input.KeyCode == Key and not changeing then
 					change()
-					pcall(Callback, Key, Value)
+					Callback(Key, Value)
 				end
 			end)
 
 			delay(0, function()
-				pcall(Callback, Key, Value)
+				Callback(Key, Value)
 			end)
 
 			Keybind:GetPropertyChangedSignal("BackgroundColor3"):Connect(function()
@@ -3877,7 +3873,7 @@ function Library:Window(p)
 				Key = t
 				TextLabel_1.Text = tostring(Key):gsub("Enum.KeyCode.", "")
 				adjustBoxBindSize()
-				pcall(Callback, Key, Value)
+				Callback(Key, Value)
 			end
 
 			return New
@@ -4453,7 +4449,7 @@ function Library:Window(p)
 
 				if lastColor ~= Picker_1.BackgroundColor3 then
 					lastColor = Picker_1.BackgroundColor3
-					pcall(Callback, math.floor(r), math.floor(g), math.floor(b))
+					Callback(math.floor(r), math.floor(g), math.floor(b))
 				end
 			end
 
@@ -4620,7 +4616,7 @@ function Library:Window(p)
 				ColorH, ColorS, ColorV = Color3.toHSV(Picker_1.BackgroundColor3)
 				UpdateColorPicker(true)
 				local r, g, b = Picker_1.BackgroundColor3.R * 255, Picker_1.BackgroundColor3.G * 255, Picker_1.BackgroundColor3.B * 255
-				pcall(Callback, math.floor(r), math.floor(g), math.floor(b))
+				Callback(math.floor(r), math.floor(g), math.floor(b))
 			end)
 
 			local New = {}
@@ -4653,7 +4649,7 @@ function Library:Window(p)
 
 					ColorSelection_1.Position = UDim2.new(s, 0, 1 - v, 0)
 					HueSelection_1.Position = UDim2.new(0.48, 0, 1 - h, 0)
-					pcall(Callback, r, g, b)
+					Callback(r, g, b)
 				end
 			end
 
@@ -4772,7 +4768,7 @@ function Library:Window(p)
 
 			local function o()
 				if #TextLabel_1.Text > 0 then
-					pcall(Callback, TextLabel_1.Text)
+					Callback(TextLabel_1.Text)
 				end
 			end
 
@@ -5221,7 +5217,7 @@ function Library:Window(p)
 		local Click1 = click(Button1_1)
 		local Click2 = click(Button2_1)
 		Click1.MouseButton1Click:Connect(function()
-			pcall(Button1)
+			Button1()
 			tw({v = TextLabel_2, t = 0.15, s = Enum.EasingStyle.Back, d = "Out", g = {TextSize = TextLabel_2.TextSize - 2}}):Play()
 			delay(.06, function()
 				tw({v = TextLabel_2, t = 0.15, s = Enum.EasingStyle.Back, d = "Out", g = {TextSize = 16}}):Play()
@@ -5233,7 +5229,7 @@ function Library:Window(p)
 		end)
 
 		Click2.MouseButton1Click:Connect(function()
-			pcall(Button2)
+			Button2()
 			tw({v = TextLabel_3, t = 0.15, s = Enum.EasingStyle.Back, d = "Out", g = {TextSize = TextLabel_3.TextSize - 2}}):Play()
 			delay(.06, function()
 				tw({v = TextLabel_3, t = 0.15, s = Enum.EasingStyle.Back, d = "Out", g = {TextSize = 16}}):Play()
@@ -5588,7 +5584,7 @@ function Library:Window(p)
 				delay(.06, function()
 					tw({v = Title_1, t = 0.15, s = Enum.EasingStyle.Back, d = "Out", g = {TextSize = 12}}):Play()
 				end)
-				pcall(closeui)
+				closeui()
 			end)
 		end
 	end
